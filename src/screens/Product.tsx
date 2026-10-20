@@ -3,7 +3,7 @@ import { TIERS, type Tier } from '../engine/model';
 import { back, navigate } from '../router';
 import { active, L, update, useStore } from '../store';
 import { AppBar, Button, Card, Segmented, Stepper, StickyCTA, Thumb } from '../ui/core';
-import { QuestionFlow, RupeeStepper } from './common';
+import { isApparel, QuestionFlow, RupeeStepper } from './common';
 
 const setActive = (fn: (p: ReturnType<typeof active>) => void) => update(d => fn(active(d)));
 
@@ -50,7 +50,7 @@ export function Costs() {
         </Card>
         <Card>
           <label className="switch-row">
-            <span><b>{L(s, "I'll add a size chart and real photos", 'मैं साइज़ चार्ट और असली फ़ोटो डालूंगा')}</b><small>{L(s, 'Cuts returns 10% → 7%', 'रिटर्न 10% → 7% हो जाते हैं')}</small></span>
+            <span><b>{isApparel(p.attrs) ? L(s, "I'll add a size chart and real photos", 'मैं साइज़ चार्ट और असली फ़ोटो डालूंगा') : L(s, "I'll add real photos and exact dimensions", 'मैं असली फ़ोटो और सही नाप डालूंगा')}</b><small>{L(s, 'Cuts returns 10% → 7%', 'रिटर्न 10% → 7% हो जाते हैं')}</small></span>
             <input type="checkbox" role="switch" checked={p.sizeChart} onChange={e => setActive(x => { x.sizeChart = e.target.checked; x.price = 0; })} />
           </label>
         </Card>

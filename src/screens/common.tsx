@@ -1,10 +1,13 @@
 // Pieces shared by several screens.
-import { Minus, Plus } from 'lucide-react';
-import { activeSteps, iconFor, labelOf, SWATCH, type Attrs } from '../engine/catalog';
+import { useState } from 'react';
+import { Minus, PencilLine, Plus } from 'lucide-react';
+import { activeSteps, iconFor, isCustom, labelOf, STEPS, SWATCH, titleFor, type Attrs } from '../engine/catalog';
+import { industryOf } from '../engine/custom';
 import { econ } from '../engine/model';
 import { applyAlert, inputsOf, isFestive, nextWeek } from '../engine/sim';
 import { active, banner, buzz, getState, inr, L, toast, update, useStore, type Alert, type AppState, type Product } from '../store';
-import { Chip, OptionList, Pill } from '../ui/core';
+import { Button, Card, Chip, OptionList, Pill, Thumb } from '../ui/core';
+import { CustomProductSheet } from './CustomProduct';
 
 const QUESTIONS: Record<string, [string, string]> = {
   category: ['What do you sell?', 'आप क्या बेचते हैं?'],
@@ -20,6 +23,24 @@ const QUESTIONS: Record<string, [string, string]> = {
 // One question at a time. Answered questions show as chips; tapping one re-opens it.
 export function QuestionFlow({ attrs, onChange }: { attrs: Attrs; onChange: (a: Attrs, complete: boolean) => void }) {
   const s = useStore();
+  const [sheet, setSheet] = useState(false);
+  const sheetEl = sheet && <CustomProductSheet initial={attrs} onClose={() => setSheet(false)} onSave={a => { setSheet(false); onChange(a, true); }} />;
+  if (isCustom(attrs)) {
+    const ind = industryOf(attrs.industry);
+    return (
+      <div className="qflow">
+        <Card highlight className="prod-sum">
+          <Thumb attrs={attrs} size={56} />
+          <div><b>{titleFor(attrs)[s.lang]}</b><small>{ind.icon} {L(s, ind.en, ind.hi)}{attrs.sub ? ' › ' + attrs.sub : ''} · {attrs.fmt ? L(s, 'formatted', 'सजाया गया') : L(s, 'as entered', 'जैसा लिखा')}</small></div>
+        </Card>
+        <div className="row-actions">
+          <Button size="sm" variant="ghost" onClick={() => setSheet(true)}><PencilLine size={18} aria-hidden="true" />{L(s, 'Edit details', 'जानकारी बदलें')}</Button>
+          <Button size="sm" variant="text" onClick={() => onChange({}, false)}>{L(s, 'Choose from list instead', 'सूची से चुनें')}</Button>
+        </div>
+        {sheetEl}
+      </div>
+    );
+  }
   const steps = activeSteps(attrs);
   const idx = steps.findIndex(st => !attrs[st.key]);
   const answered = steps.filter(st => attrs[st.key]);
@@ -46,12 +67,48 @@ export function QuestionFlow({ attrs, onChange }: { attrs: Attrs; onChange: (a: 
             <div className="qprog"><span>{L(s, `${idx + 1} of ${steps.length}`, `${steps.length} में से ${idx + 1}`)}</span><i><b style={{ width: `${(idx / steps.length) * 100}%` }} /></i></div>
             <h2 className="qtitle">{L(s, q[0], q[1])}</h2>
             <OptionList label={L(s, q[0], q[1])} items={st.options(attrs).map(o => ({ id: o.id, label: o[s.lang], icon: iconFor(o.id), swatch: st.key === 'colour' ? SWATCH[o.id] : undefined }))} onPick={id => pick(st.key, id)} />
+            {idx === 0 && <button className="add-own" onClick={() => { buzz(); setSheet(true); }}>
+              <Plus size={22} aria-hidden="true" /><span><b>{L(s, 'Add your own product', 'अपना सामान जोड़ें')}</b><small>{L(s, 'Décor, home basics, footwear, jewellery and more', 'सजावट, घर का सामान, जूते, ज्वेलरी और बहुत कुछ')}</small></span>
+            </button>}
           </div>
         );
       })()}
+      {sheetEl}
     </div>
   );
 }
+
+// the same "Product details" rows for every product, built-in or custom, so listings read alike
+export function ProductInfo({ attrs }: { attrs: Attrs }) {
+  const s = useStore();
+  let rows: [string, string][];
+  if (isCustom(attrs)) {
+    const ind = industryOf(attrs.industry);
+    rows = [
+      [L(s, 'Category', 'श्रेणी'), `${L(s, ind.en, ind.hi)}${attrs.sub ? ' › ' + attrs.sub : ''}`],
+      [L(s, 'Material', 'मटीरियल'), attrs.material], [L(s, 'Colour', 'रंग'), attrs.colour], [L(s, 'Size', 'साइज़'), attrs.size],
+      [L(s, 'Pack of', 'पैक में'), attrs.pack || '1'],
+    ];
+  } else {
+    const get = (k: string) => (attrs[k] ? labelOf(k, attrs[k], attrs, s.lang) : '');
+    rows = [
+      [L(s, 'Category', 'श्रेणी'), `${L(s, "Women's fashion", 'महिलाओं के कपड़े')} › ${get('category')}`],
+      [L(s, 'Material', 'मटीरियल'), get('fabric')], [L(s, 'Colour', 'रंग'), get('colour')], [L(s, 'Size', 'साइज़'), get('sizes')],
+      [L(s, 'Pack of', 'पैक में'), '1'],
+      ...(['style', 'work', 'sleeve', 'neck'] as const).filter(k => attrs[k]).map(k => [STEPS.find(x => x.key === k)!.label[s.lang], get(k)] as [string, string]),
+    ];
+  }
+  const desc = isCustom(attrs) ? attrs.desc : '';
+  return (
+    <Card title={L(s, 'Product details', 'सामान की जानकारी')}>
+      <dl className="lc-rows">{rows.filter(([, v]) => v).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+      {desc && <p className="lc-desc">{desc}</p>}
+    </Card>
+  );
+}
+
+// apparel gets size-chart wording; everything else gets photos-and-dimensions wording
+export const isApparel = (a: Attrs) => !isCustom(a) || !!industryOf(a.industry).apparel;
 
 export function RupeeStepper({ value, onChange, label, step = 5, min = 0 }: { value: number; onChange: (n: number) => void; label: string; step?: number; min?: number }) {
   const s = useStore();
@@ -81,6 +138,9 @@ export function alertText(s: AppState, p: Product, a: Alert) {
       stake: econ(a.price!, inp, undefined, { rto: 0.28 }).c - econ(p.price, inp, undefined, { rto: 0.28 }).c, yes: L(s, `Set ${inr(a.price!)}`, `${inr(a.price!)} करें`), no: L(s, 'Keep current', 'अभी वाला रखें') };
     case 'returns': {
       const save = econ(p.price, { ...inp, sizeChart: true }).c - econ(p.price, inp).c;
+      if (!isApparel(p.attrs)) return { t: L(s, 'Returns are too high', 'रिटर्न ज़्यादा आ रहे हैं'),
+        b: L(s, `“Not as shown” is the top reason. Real photos and exact dimensions cut returns 10% → 7% and lower your minimum. You keep ${inr(save)} more per order.`, `“जैसा दिखाया वैसा नहीं” सबसे बड़ा कारण है। असली फ़ोटो और सही नाप से रिटर्न 10% से 7% होंगे और कम से कम दाम घटेगा। हर ऑर्डर पर ${inr(save)} ज़्यादा बचेंगे।`),
+        stake: save, yes: L(s, 'Add photos & size', 'फ़ोटो और नाप जोड़ें'), no: L(s, 'Later', 'बाद में') };
       return { t: L(s, 'Returns are too high', 'रिटर्न ज़्यादा आ रहे हैं'),
         b: L(s, `“Size didn't fit” is the top reason. A size chart and real photos cut returns 10% → 7% and lower your minimum. You keep ${inr(save)} more per order.`, `“साइज़ नहीं आया” सबसे बड़ा कारण है। साइज़ चार्ट और असली फ़ोटो से रिटर्न 10% से 7% होंगे और कम से कम दाम घटेगा। हर ऑर्डर पर ${inr(save)} ज़्यादा बचेंगे।`),
         stake: save, yes: L(s, 'Add size chart', 'साइज़ चार्ट जोड़ें'), no: L(s, 'Later', 'बाद में') };
@@ -94,7 +154,7 @@ export function alertText(s: AppState, p: Product, a: Alert) {
 export function answerAlert(p: Product, a: Alert, accept: boolean) {
   const s0 = getState();
   update(d => { const dp = d.products.find(x => x.id === p.id); if (dp) applyAlert(dp, a.id, accept); });
-  if (accept) toast.show(a.kind === 'returns' ? L(s0, 'Size chart added', 'साइज़ चार्ट जुड़ गया') : a.kind === 'rival' ? L(s0, 'Holding your price', 'आपका दाम वही रहेगा') : L(s0, 'Price updated', 'दाम बदल गया'));
+  if (accept) toast.show(a.kind === 'returns' ? (isApparel(p.attrs) ? L(s0, 'Size chart added', 'साइज़ चार्ट जुड़ गया') : L(s0, 'Photos & size added', 'फ़ोटो और नाप जुड़ गए')) : a.kind === 'rival' ? L(s0, 'Holding your price', 'आपका दाम वही रहेगा') : L(s0, 'Price updated', 'दाम बदल गया'));
 }
 
 // ---- demo fast-forward ----

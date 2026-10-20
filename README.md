@@ -4,6 +4,8 @@ A mobile app (installable PWA) that gives new-to-online sellers on Meesho the ri
 
 Splash → language → story → **Kitna Bachega?** calculator → sign-up (OTP) → product and costs → **Floor Engine** (breakeven, target floor, price menu by goal, true cost, buyer's view) → co-funded **launch** → go-live → **Home · Hisaab · Alerts · Listing**, with a helper chat and a profile sheet. Every screen works in Hindi and English.
 
+Sellers can also **add their own product** in any industry (fashion, footwear, jewellery, home décor, home furnishing, kitchen, home basics, electronics accessories and more). A pop-up asks for the industry and details, then either **formats it neatly** (clean title, details in a fixed order, tidy description) or **adds it as entered**. Every product shows the same "Product details" card on the Listing tab.
+
 All orders, profits and alerts are simulated and stay on the phone (localStorage). There is no backend.
 
 ## Run locally
@@ -24,10 +26,11 @@ npm test             # pricing engine vs the §10.5 test vectors
 ## Code map
 - `src/engine/model.ts`: pricing maths (breakeven, floor, demand curve, recommendations).
 - `src/engine/catalog.ts`: product questions, icons and cost estimates.
+- `src/engine/custom.ts`: industries for seller-defined products and the "Format neatly" listing formatter.
 - `src/engine/sim.ts`: weekly simulation and Mool Mitra alerts.
 - `src/store.ts`: app state saved on the device, `L()` for Hindi/English, ₹ formatter, toast and banner.
 - `src/router.ts`: hash routes; the phone's back button walks back through the flow.
 - `src/ui/`: component library (buttons, cards, money tiles, receipt rows, option lists, bottom sheets, charts, confetti).
 - `src/screens/`: every screen.
 - `src/live.ts`: stub for a future Supabase sync (nothing depends on it).
-- `tests/model.test.ts`: §10.5 test vectors.
+- `tests/model.test.ts`: §10.5 test vectors. `tests/custom.test.ts`: listing formatter.

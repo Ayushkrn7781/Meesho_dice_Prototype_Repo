@@ -1,11 +1,12 @@
 // Weekly shop simulation and Mool Mitra alerts (§10.6). Deterministic: a demo replays identically.
 import { econ, metrics, recommend, CONFIG, FESTIVE, type Inputs } from './model';
-import { designFor, type Attrs } from './catalog';
+import { designFor, isCustom, type Attrs } from './catalog';
+import { industryOf } from './custom';
 import type { Alert, AppState, Product } from '../store';
 
 // market median for each kind of product (₹)
 const MEDIAN: Record<string, number> = { 'kurti-chikan': 429, 'kurti-printed': 250, 'kurti-anarkali': 549, 'dupatta-chikan': 229 };
-export const medianFor = (a: Attrs) => MEDIAN[designFor(a)] ?? 250;
+export const medianFor = (a: Attrs) => (isCustom(a) ? Number(a.median) || industryOf(a.industry).median : MEDIAN[designFor(a)] ?? 250);
 export const inputsOf = (p: Pick<Product, 'cost' | 'tier' | 'sizeChart' | 'attrs'>): Inputs => ({ cost: p.cost, tier: p.tier, sizeChart: p.sizeChart, median: medianFor(p.attrs) });
 
 function rand(seed: number) { const x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }

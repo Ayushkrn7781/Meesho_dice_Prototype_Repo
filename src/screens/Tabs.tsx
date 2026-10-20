@@ -7,7 +7,7 @@ import { active, buzz, inr, L, liveProducts, newProduct, profile, toast, update,
 import { ChartArt, ParcelArt } from '../ui/art';
 import { Bars } from '../ui/charts';
 import { Button, Card, Chip, Empty, LangPill, MoneyTile, Pill, ReceiptRow, Segmented, Thumb } from '../ui/core';
-import { alertText, answerAlert, keepOf, WeekStrip } from './common';
+import { alertText, answerAlert, isApparel, keepOf, ProductInfo, WeekStrip } from './common';
 
 // tab app bar: title, language pill and the profile avatar
 function TabHeader({ title, sub }: { title: string; sub?: string }) {
@@ -179,7 +179,8 @@ export function Listing() {
     if (p.sizeChart) return;
     const before = e.breakeven;
     update(d => { active(d).sizeChart = true; });
-    toast.show(L(s, `Size chart added · minimum ${inr(before)} → ${inr(econ(p.price, { ...inputsOf(p), sizeChart: true }).breakeven)}`, `साइज़ चार्ट जुड़ गया · कम से कम दाम ${inr(before)} → ${inr(econ(p.price, { ...inputsOf(p), sizeChart: true }).breakeven)}`));
+    toast.show(isApparel(p.attrs) ? L(s, `Size chart added · minimum ${inr(before)} → ${inr(econ(p.price, { ...inputsOf(p), sizeChart: true }).breakeven)}`, `साइज़ चार्ट जुड़ गया · कम से कम दाम ${inr(before)} → ${inr(econ(p.price, { ...inputsOf(p), sizeChart: true }).breakeven)}`)
+      : L(s, `Photos & size added · minimum ${inr(before)} → ${inr(econ(p.price, { ...inputsOf(p), sizeChart: true }).breakeven)}`, `फ़ोटो और नाप जुड़ गए · कम से कम दाम ${inr(before)} → ${inr(econ(p.price, { ...inputsOf(p), sizeChart: true }).breakeven)}`));
   };
   const addProduct = () => { const np = newProduct(); update(d => { d.products.push(np); d.activeProductId = np.id; }); navigate('product'); };
   return (
@@ -200,10 +201,11 @@ export function Listing() {
           <ReceiptRow plain label={L(s, 'Breakeven (no loss)', 'कम से कम दाम (बिना घाटा)')} value={inr(e.breakeven)} />
           <ReceiptRow plain label={L(s, 'Target floor', 'सही न्यूनतम दाम')} value={inr(e.floor)} />
           <button className="rrow tap" onClick={addSizeChart} disabled={p.sizeChart}>
-            <span>{L(s, 'Size chart + real photos', 'साइज़ चार्ट + असली फ़ोटो')}{!p.sizeChart && <small>{L(s, 'Tap to add · lowers your minimum', 'जोड़ने के लिए दबाएं · कम से कम दाम घटेगा')}</small>}</span>
+            <span>{isApparel(p.attrs) ? L(s, 'Size chart + real photos', 'साइज़ चार्ट + असली फ़ोटो') : L(s, 'Real photos + exact size', 'असली फ़ोटो + सही नाप')}{!p.sizeChart && <small>{L(s, 'Tap to add · lowers your minimum', 'जोड़ने के लिए दबाएं · कम से कम दाम घटेगा')}</small>}</span>
             <b className={p.sizeChart ? 'gain' : 'loss'}>{p.sizeChart ? '✓ ' + L(s, 'Added', 'जुड़ा') : '✕ ' + L(s, 'Missing', 'नहीं है')}</b>
           </button>
         </Card>
+        <ProductInfo attrs={p.attrs} />
         <Button full variant="ghost" onClick={() => navigate('floor')}><RefreshCw size={18} aria-hidden="true" />{L(s, 'Re-check price', 'दाम दोबारा जांचें')}</Button>
         <Button full variant="text" onClick={addProduct}><Plus size={18} aria-hidden="true" />{L(s, 'Add another product', 'एक और सामान जोड़ें')}</Button>
       </div>

@@ -25,7 +25,9 @@ export const STEPS: Step[] = [
 ];
 
 export function activeSteps(a: Attrs) { return STEPS.filter(s => !s.skip?.(a)); }
-export function isComplete(a: Attrs) { return activeSteps(a).every(s => !!a[s.key]); }
+// a seller-defined product (from the "Add your own product" sheet) carries attrs.custom = '1'
+export const isCustom = (a: Attrs) => a.custom === '1';
+export function isComplete(a: Attrs) { return isCustom(a) ? !!(a.industry && a.name) : activeSteps(a).every(s => !!a[s.key]); }
 export function labelOf(key: string, id: string, a: Attrs, lang: 'en' | 'hi') {
   const st = STEPS.find(s => s.key === key); const op = st?.options(a).find(x => x.id === id);
   return op ? op[lang] : id;
@@ -33,6 +35,7 @@ export function labelOf(key: string, id: string, a: Attrs, lang: 'en' | 'hi') {
 
 // estimated making cost and packed weight from the answers
 export function estimate(a: Attrs) {
+  if (isCustom(a)) return { cost: Number(a.cost) || 0, weight: 400 };
   const base: Record<string, number> = { straight: 170, anarkali: 300, aline: 210, short: 140, palazzo: 330, three: 420, dupatta: 90, stole: 75 };
   const fab: Record<string, number> = { cotton: 1, mul: 1.05, georgette: 1.15, rayon: 0.7, chanderi: 1.2, chiffon: 1.05 };
   const work: Record<string, number> = { hand: 70, mukaish: 160, machine: 15, block: 10, plain: 0 };
@@ -43,6 +46,7 @@ export function estimate(a: Attrs) {
 
 // which simulated market (design) these answers compete in
 export function designFor(a: Attrs) {
+  if (isCustom(a)) return 'custom';
   if (a.category === 'dupatta') return 'dupatta-chikan';
   if (a.style === 'anarkali' || a.category === 'set' || a.work === 'mukaish') return 'kurti-anarkali';
   if (a.work === 'block' || a.work === 'plain' || a.fabric === 'rayon') return 'kurti-printed';
@@ -50,6 +54,7 @@ export function designFor(a: Attrs) {
 }
 
 export function titleFor(a: Attrs): Bi {
+  if (isCustom(a)) return { en: a.title || a.name, hi: a.title || a.name };
   const L = (k: string, lang: 'en' | 'hi') => (a[k] ? labelOf(k, a[k], a, lang) : '');
   const workEn = a.work === 'plain' ? '' : L('work', 'en');
   const en = [L('colour', 'en'), workEn, L('fabric', 'en'), a.category === 'dupatta' ? L('style', 'en').replace(/ \(.*\)/, '') : L('style', 'en'), a.category === 'kurti' && a.style !== 'short' ? 'kurti' : ''].filter(Boolean).join(' ');

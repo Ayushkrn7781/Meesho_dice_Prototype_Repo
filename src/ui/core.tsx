@@ -1,7 +1,8 @@
 // Small component library (§6.4). Styling lives in styles.css.
 import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { ArrowLeft, Check, X } from 'lucide-react';
-import { colourOf, type Attrs } from '../engine/catalog';
+import { colourOf, isCustom, type Attrs } from '../engine/catalog';
+import { industryOf, tintOf } from '../engine/custom';
 import { buzz, inr, L, update, useStore, banner, toast } from '../store';
 
 export const Logo = ({ size = 34 }: { size?: number }) => (
@@ -180,6 +181,10 @@ export function useCalculating(key: string, ms = 400) {
 export const StickyCTA = ({ children }: { children: ReactNode }) => <div className="sticky-cta">{children}</div>;
 
 export function Thumb({ attrs, size = 64 }: { attrs: Attrs; size?: number }) {
+  if (isCustom(attrs)) {
+    const [bg] = tintOf(attrs.colour);
+    return <div className="thumb" style={{ background: bg, width: size, height: size * 1.2, fontSize: size * 0.5 }} aria-hidden="true">{industryOf(attrs.industry).icon}</div>;
+  }
   const [bg, fg] = colourOf(attrs);
   const dupatta = attrs.category === 'dupatta';
   return (
