@@ -62,3 +62,16 @@ const COLOURS: Record<string, [string, string, string]> = {
   mint: ['#d8efe4', '#2d6b4f', '#eef8f2'], yellow: ['#fde9a8', '#b45309', '#fff8e6'], maroon: ['#e7b8c4', '#7a1630', '#f7e9ee'], black: ['#4a4450', '#e8d9a8', '#ecebee'],
 };
 export function colourOf(a: Attrs) { return COLOURS[a.colour] ?? COLOURS.white; }
+
+// emoji shown next to each option in the one-question-at-a-time picker
+const ICONS: Record<string, string> = {
+  kurti: '👗', set: '👘', dupatta: '🧣', straight: '📏', anarkali: '💃', aline: '🔺', short: '👚', palazzo: '👖', three: '🎁', stole: '🧣',
+  cotton: '🌿', mul: '☁️', georgette: '✨', rayon: '🧵', chanderi: '🌟', chiffon: '🪶',
+  hand: '🪡', mukaish: '💎', machine: '⚙️', block: '🟫', plain: '⬜',
+  '34': '💪', full: '🧥', none: '🎽', round: '⭕', v: '🔻', mandarin: '👔', boat: '⛵',
+  sxl: '📐', sxxl: '📐', mxxxl: '📐', free: '♾️',
+};
+export const iconFor = (id: string) => ICONS[id] ?? '•';
+
+// swatch colours for the colour question
+export const SWATCH: Record<string, string> = { white: '#FFFFFF', pink: '#F4A6C0', sky: '#8FB8E3', mint: '#9FD9BF', yellow: '#F7D154', maroon: '#7A1630', black: '#26222A' };

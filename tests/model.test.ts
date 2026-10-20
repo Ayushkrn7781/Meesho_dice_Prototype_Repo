@@ -1,11 +1,11 @@
-// §9.5 test vectors: cost ₹180, Standard tier, median ₹250, no size chart.
+// §10.5 test vectors: cost ₹180, Standard tier, median ₹250, no size chart.
 import { describe, expect, it } from 'vitest';
-import { bucketNote, econ, FESTIVE, metrics, pricePoints, recommend, type Inputs } from '../src/model';
+import { bucketNote, econ, FESTIVE, metrics, pricePoints, recommend, type Inputs } from '../src/engine/model';
 
 const inp: Inputs = { cost: 180, tier: 'standard', sizeChart: false, median: 250 };
 const near = (got: number, want: number, tol: number) => expect(Math.abs(got - want)).toBeLessThanOrEqual(tol);
 
-describe('price table (§9.5)', () => {
+describe('price table (§10.5)', () => {
   const rows: [number, number, number, number][] = [
     [199, 60.0, -83.0, -21409],
     [249, 60.0, -49.0, -12649],

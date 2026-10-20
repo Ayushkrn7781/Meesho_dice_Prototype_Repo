@@ -1,19 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="hi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#5A0F3F" />
-    <meta name="description" content="Mool Mitra: the right first price for new online sellers." />
+    <meta name="description" content="Mool Mitra: the right price for new online sellers, from your own cost." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Mool Mitra" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>Mool Mitra</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- display=optional: fonts never swap in after first paint, so text does not jump (cached for the next visit) -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Mukta:wght@400;500;600;700&display=optional" />
+    <!-- fonts load without blocking first paint; display=optional means text never jumps when they arrive.
+         The service worker caches them, so later visits use them from the first frame. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Mukta:wght@400;500;600&display=optional" media="print" onload="this.media='all'" />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- static splash painted before any JavaScript; React replaces it with the same screen -->
+    <div id="root"><main class="splash" style="min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:linear-gradient(160deg,#5A0F3F,#8E2A6B);color:#fff;text-align:center;padding:24px;max-width:430px;margin:0 auto;font-family:'Baloo 2',system-ui,sans-serif">
+      <svg width="88" height="88" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#5A0F3F"/><path d="M10 26c4-9 7-9 10 0 3-9 6-9 10 0" stroke="#F2A93B" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="13" r="3.2" fill="#F2A93B"/></svg>
+      <h1 style="font-size:34px;line-height:1.15;margin:0">Mool Mitra <span lang="hi" style="display:block;font-size:26px;color:#FFD99A">मूल मित्र</span></h1>
+      <p style="font-size:17px;opacity:.9;margin:0">सही दाम, सही मुनाफ़ा</p>
+    </main></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

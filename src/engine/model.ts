@@ -1,5 +1,5 @@
 // Floor Engine pricing model — the single source of truth for every price in the app.
-// Constants are illustrative and can be edited live in Settings.
+// Constants are illustrative model assumptions (§10.1).
 
 export interface ModelConfig {
   median: number;   // typical price of similar items (₹)
@@ -18,13 +18,10 @@ export interface ModelConfig {
   margin: number;   // target margin above breakeven (₹)
 }
 
-export const DEFAULT_CONFIG: Readonly<ModelConfig> = {
+export const CONFIG: Readonly<ModelConfig> = {
   median: 250, k: 3, D0: 60, cap: 60, rto: 0.2, ret: 0.1, retFixed: 0.07, unsell: 0.15,
   pack: 8, fwd: 65, rev: 155, ads: 15, phi: 0.03, margin: 40,
 };
-// live config: Settings overrides are applied on top of the defaults
-export const CONFIG: ModelConfig = { ...DEFAULT_CONFIG };
-export function applyConfig(over: Partial<ModelConfig> = {}) { Object.assign(CONFIG, DEFAULT_CONFIG, over); }
 export const FESTIVE = { rto: 0.28, demand: 1.4 };
 
 export type Tier = 'standard' | 'better' | 'premium';
@@ -86,39 +83,4 @@ export function bucketNote(P: number, lang: 'en' | 'hi' = 'en') {
   if (above) return lang === 'hi' ? `₹${P} “₹${above} से कम” फ़िल्टर से चूक जाता है। ₹${above} पर आप उन खरीदारों को दिखेंगे।` : `₹${P} just misses the "Under ₹${above}" filter. ₹${above} would show you to those shoppers.`;
   const b = FILTER_BUCKETS.find(x => P <= x) ?? FILTER_BUCKETS[FILTER_BUCKETS.length - 1];
   return lang === 'hi' ? `“₹${b} से कम” और उससे ऊपर के हर फ़िल्टर में दिखेगा।` : `Visible in "Under ₹${b}" and every higher filter.`;
-}
-
-export function statusOf(m: { c: number; o: number }, isRec: boolean) {
-  if (m.c < 0) return 'loss';
-  if (isRec) return 'fits';
-  if (m.o < 4) return 'few';
-  if (m.c < 15) return 'thin';
-  return 'ok';
-}
-
-// 12-week simulation of four strategies (weeks 5–7 are Diwali)
-export function simulate12(inp: Inputs, cfg: ModelConfig = CONFIG) {
-  const strategies = [
-    { id: 'cheap', label: 'Copies the cheapest', hi: 'सबसे सस्ता कॉपी', price: () => 199 },
-    { id: 'shop', label: 'Cost + 30%, like his shop', hi: 'लागत + 30%, दुकान जैसा', price: () => Math.round(inp.cost * 1.3) },
-    { id: 'high', label: 'Prices high', hi: 'ऊंचा दाम', price: () => 549 },
-    { id: 'engine', label: 'Uses the Floor Engine', hi: 'फ़्लोर इंजन से', price: (w: number, ctx: Ctx) => (w <= 2 ? recommend('first', inp, cfg, ctx) : recommend('profit', inp, cfg, ctx)) },
-  ];
-  const rows: Record<string, number | string | null>[] = [];
-  const state = strategies.map(() => ({ cum: 0, orders: 0, quit: null as number | null }));
-  for (let w = 1; w <= 12; w++) {
-    const ctx: Ctx = w >= 5 && w <= 7 ? FESTIVE : {};
-    const row: Record<string, number | string | null> = { week: `W${w}` };
-    strategies.forEach((st, i) => {
-      const s = state[i];
-      if (s.quit !== null) { row[st.id] = null; return; }
-      const P = st.price(w, ctx);
-      const m = metrics(P, inp, cfg, ctx);
-      s.cum += m.week; s.orders += m.o;
-      row[st.id] = Math.round(s.cum);
-      if (s.cum < -15000 || (w === 6 && s.orders < 12)) s.quit = w;
-    });
-    rows.push(row);
-  }
-  return { rows, strategies, results: strategies.map((st, i) => ({ ...st, cum: Math.round(state[i].cum), quit: state[i].quit })) };
 }
