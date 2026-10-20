@@ -52,7 +52,20 @@ export const initial = (): AppState => ({
   week: 0, mode: 'ask', celebratedProfit: false,
 });
 
+// Every new visit (opening the link, a new tab, launching the installed app) starts the demo from the
+// splash screen. sessionStorage lives only as long as the tab, so a reload in the same tab keeps its place.
+const SESSION = 'mool-mitra-session';
+function newVisit() {
+  try {
+    if (sessionStorage.getItem(SESSION)) return false;
+    sessionStorage.setItem(SESSION, '1');
+  } catch { /* storage blocked: every load is a fresh start */ }
+  return true;
+}
+export const freshStart = newVisit();
+
 function load(): AppState {
+  if (freshStart) { try { localStorage.removeItem(KEY); } catch { /* ignore */ } return initial(); }
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {

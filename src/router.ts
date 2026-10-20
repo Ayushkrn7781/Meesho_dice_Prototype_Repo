@@ -2,7 +2,7 @@
 // entry, so the back arrow and the phone's back button walk back through what the seller saw.
 import { isComplete } from './engine/catalog';
 import { kycDone } from './engine/kyc';
-import { active, exitPrompt, getState, update, type AppState } from './store';
+import { active, exitPrompt, freshStart, getState, update, type AppState } from './store';
 
 export type Route =
   | 'splash' | 'language' | 'story' | 'calc' | 'phone' | 'otp' | 'about' | 'product' | 'costs' | 'floor' | 'kyc' | 'launch' | 'golive'
@@ -77,7 +77,7 @@ export function leaveApp() { exitPrompt.set(false); history.go(-(depth + 2)); }
 
 export function initRouter() {
   const s = getState();
-  const wanted = read() ?? 'splash';
+  const wanted = freshStart ? 'splash' : read() ?? 'splash';   // a new visit ignores any #/screen in the link
   const start = wanted === 'splash' ? 'splash' : guard(wanted, s);
   // a sentinel entry under the app: if the phone's back reaches it we ask before leaving
   history.replaceState(null, '', '#/' + ROOT);
