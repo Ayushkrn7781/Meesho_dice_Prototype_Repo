@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { econ } from '../engine/model';
 import { inputsOf } from '../engine/sim';
-import { back, navigate } from '../router';
+import { navigate } from '../router';
 import { active, buzz, inr, L, update, useStore } from '../store';
 import { Confetti, ParcelArt } from '../ui/art';
-import { AppBar, Button, ReceiptRow, Stepper, StickyCTA } from '../ui/core';
+import { AppBar, BackButton, Button, ReceiptRow, StickyCTA } from '../ui/core';
 
 // 8.8 Naya Launch
 export function Launch() {
@@ -18,8 +18,7 @@ export function Launch() {
   };
   return (
     <main className="screen">
-      <AppBar title={L(s, 'Naya Launch', 'नया लॉन्च')} onBack={back} />
-      {!s.onboarded && <Stepper stage={4} />}
+      <AppBar title={L(s, 'Naya Launch', 'नया लॉन्च')} />
       <div className="pad">
         <div className="coupon">
           <p className="coupon-k">{L(s, 'First 20 orders', 'पहले 20 ऑर्डर')} · <b>{L(s, 'NEW LAUNCH', 'नया लॉन्च')}</b></p>
@@ -52,6 +51,7 @@ export function GoLive() {
   useEffect(() => { buzz(); }, []);
   return (
     <main className="golive">
+      <div className="bare-bar on-dark"><BackButton onBack={() => { update(d => { d.onboarded = true; }); navigate('home'); }} /></div>
       <Confetti />
       <div className="gl-art"><ParcelArt size={170} /></div>
       <h1>{L(s, 'Your product is live! 🎉', 'आपका प्रोडक्ट लाइव है! 🎉')}</h1>

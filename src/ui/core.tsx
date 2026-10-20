@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode 
 import { ArrowLeft, Check, X } from 'lucide-react';
 import { colourOf, isCustom, type Attrs } from '../engine/catalog';
 import { industryOf, tintOf } from '../engine/custom';
+import { back } from '../router';
 import { buzz, inr, L, update, useStore, banner, toast } from '../store';
 
 export const Logo = ({ size = 34 }: { size?: number }) => (
@@ -47,25 +48,21 @@ export function LangPill() {
     aria-label={L(s, 'Switch to Hindi', 'अंग्रेज़ी में बदलें')}>{s.lang === 'en' ? 'हिं' : 'EN'}</button>;
 }
 
-export function AppBar({ title, onBack, right, sub }: { title?: ReactNode; sub?: ReactNode; onBack?: () => void; right?: ReactNode }) {
+export function BackButton({ onBack = back }: { onBack?: () => void }) {
   const s = useStore();
+  return <button className="icon-btn back" onClick={() => { buzz(); onBack(); }} aria-label={L(s, 'Back', 'वापस')}><ArrowLeft size={22} /></button>;
+}
+
+// every screen has a back arrow; it goes to the previous screen (see router.back)
+export function AppBar({ title, onBack, right, sub, logo }: { title?: ReactNode; sub?: ReactNode; onBack?: () => void; right?: ReactNode; logo?: boolean }) {
   return (
     <header className="appbar">
-      {onBack ? <button className="icon-btn" onClick={onBack} aria-label={L(s, 'Back', 'वापस')}><ArrowLeft size={22} /></button> : <Logo size={34} />}
+      <BackButton onBack={onBack} />
+      {logo && <Logo size={30} />}
       <div className="appbar-t">{title && <h1>{title}</h1>}{sub && <small>{sub}</small>}</div>
       {right}
       <LangPill />
     </header>
-  );
-}
-
-const STAGES: [string, string][] = [['Discover', 'खोज'], ['Register', 'खाता'], ['Product', 'सामान'], ['Price', 'दाम'], ['Launch', 'लॉन्च'], ['Grow', 'बढ़ें']];
-export function Stepper({ stage }: { stage: number }) {
-  const s = useStore();
-  return (
-    <ol className="stepper" aria-label={L(s, `Step ${stage + 1} of 6`, `6 में से कदम ${stage + 1}`)}>
-      {STAGES.map(([en, hi], i) => <li key={en} className={i < stage ? 'done' : i === stage ? 'on' : ''} aria-current={i === stage ? 'step' : undefined}><i />{s.lang === 'hi' ? hi : en}</li>)}
-    </ol>
   );
 }
 
@@ -180,7 +177,8 @@ export function useCalculating(key: string, ms = 400) {
 
 export const StickyCTA = ({ children }: { children: ReactNode }) => <div className="sticky-cta">{children}</div>;
 
-export function Thumb({ attrs, size = 64 }: { attrs: Attrs; size?: number }) {
+export function Thumb({ attrs, size = 64, photo }: { attrs: Attrs; size?: number; photo?: string }) {
+  if (photo) return <div className="thumb photo" style={{ width: size, height: size * 1.2 }} aria-hidden="true"><img src={photo} alt="" /></div>;
   if (isCustom(attrs)) {
     const [bg] = tintOf(attrs.colour);
     return <div className="thumb" style={{ background: bg, width: size, height: size * 1.2, fontSize: size * 0.5 }} aria-hidden="true">{industryOf(attrs.industry).icon}</div>;

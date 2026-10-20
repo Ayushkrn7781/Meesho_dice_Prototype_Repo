@@ -21,7 +21,7 @@ const QUESTIONS: Record<string, [string, string]> = {
 };
 
 // One question at a time. Answered questions show as chips; tapping one re-opens it.
-export function QuestionFlow({ attrs, onChange }: { attrs: Attrs; onChange: (a: Attrs, complete: boolean) => void }) {
+export function QuestionFlow({ attrs, onChange, photo }: { attrs: Attrs; onChange: (a: Attrs, complete: boolean) => void; photo?: string }) {
   const s = useStore();
   const [sheet, setSheet] = useState(false);
   const sheetEl = sheet && <CustomProductSheet initial={attrs} onClose={() => setSheet(false)} onSave={a => { setSheet(false); onChange(a, true); }} />;
@@ -30,7 +30,7 @@ export function QuestionFlow({ attrs, onChange }: { attrs: Attrs; onChange: (a: 
     return (
       <div className="qflow">
         <Card highlight className="prod-sum">
-          <Thumb attrs={attrs} size={56} />
+          <Thumb attrs={attrs} size={56} photo={photo} />
           <div><b>{titleFor(attrs)[s.lang]}</b><small>{ind.icon} {L(s, ind.en, ind.hi)}{attrs.sub ? ' › ' + attrs.sub : ''} · {attrs.fmt ? L(s, 'formatted', 'सजाया गया') : L(s, 'as entered', 'जैसा लिखा')}</small></div>
         </Card>
         <div className="row-actions">

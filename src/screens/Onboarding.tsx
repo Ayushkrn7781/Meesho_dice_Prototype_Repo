@@ -5,7 +5,7 @@ import { medianFor } from '../engine/sim';
 import { navigate } from '../router';
 import { inr, L, update, useStore } from '../store';
 import { CoinArt, ParcelArt, SellerArt } from '../ui/art';
-import { AppBar, Button, Card, Logo, Money, ReceiptRow, Skeleton, Stepper, StickyCTA, useCalculating } from '../ui/core';
+import { AppBar, BackButton, Button, Card, Logo, Money, ReceiptRow, Skeleton, StickyCTA, useCalculating } from '../ui/core';
 import { QuestionFlow, RupeeStepper } from './common';
 
 // 8.1 Splash
@@ -30,6 +30,7 @@ export function Language() {
   const pick = (lang: 'en' | 'hi') => { update(d => { d.lang = lang; }); navigate('story'); };
   return (
     <main className="screen pad">
+      <div className="bare-bar"><BackButton /></div>
       <div className="lang-head"><Logo size={56} /><h1>भाषा चुनें<br /><small>Choose your language</small></h1></div>
       <button className={'lang-card' + (s.lang === 'hi' ? ' on' : '')} onClick={() => pick('hi')} lang="hi">
         <b>हिंदी</b><span>मैं अपना सही दाम जानना चाहता हूं</span>
@@ -89,9 +90,8 @@ export function Calc() {
   const busy = useCalculating(JSON.stringify(a));
   return (
     <main className="screen">
-      <AppBar title={L(s, 'Kitna Bachega?', 'कितना बचेगा?')} onBack={() => navigate('story')}
+      <AppBar title={L(s, 'Kitna Bachega?', 'कितना बचेगा?')}
         right={<button className="text-btn" onClick={() => navigate('phone')}>{L(s, 'Sign up directly', 'सीधे साइन अप')}</button>} />
-      <Stepper stage={0} />
       <div className="pad">
         <div className="hero-card">
           <h2>{L(s, 'How much will you keep per piece?', 'हर पीस पर आपको कितना बचेगा?')}</h2>

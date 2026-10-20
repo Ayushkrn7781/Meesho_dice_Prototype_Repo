@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { titleFor } from '../engine/catalog';
 import { bucketNote, econ, metrics, pricePoints, recommend, type Goal } from '../engine/model';
 import { inputsOf } from '../engine/sim';
+import { kycDone } from '../engine/kyc';
 import { back, navigate } from '../router';
 import { active, buzz, inr, L, toast, update, useStore } from '../store';
 import { Curve } from '../ui/charts';
-import { AppBar, Button, Card, MoneyTile, Pill, ReceiptRow, Segmented, Skeleton, Stepper, StickyCTA, Thumb, useCalculating } from '../ui/core';
+import { AppBar, Button, Card, MoneyTile, Pill, ReceiptRow, Segmented, Skeleton, StickyCTA, Thumb, useCalculating } from '../ui/core';
 
 export function FloorEngine() {
   const s = useStore();
@@ -38,10 +39,9 @@ export function FloorEngine() {
 
   return (
     <main className="screen">
-      <AppBar title={L(s, 'Floor Engine', 'फ़्लोर इंजन')} onBack={back} />
-      {!s.onboarded && <Stepper stage={3} />}
+      <AppBar title={L(s, 'Floor Engine', 'फ़्लोर इंजन')} />
       <div className="pad">
-        <div className="fe-head"><Thumb attrs={p.attrs} size={48} /><div><b>{titleFor(p.attrs)[s.lang]}</b><small>{L(s, `Making cost ${inr(p.cost)}`, `बनाने का खर्च ${inr(p.cost)}`)}</small></div></div>
+        <div className="fe-head"><Thumb attrs={p.attrs} size={48} photo={p.photos[0]} /><div><b>{titleFor(p.attrs)[s.lang]}</b><small>{L(s, `Making cost ${inr(p.cost)}`, `बनाने का खर्च ${inr(p.cost)}`)}</small></div></div>
         {busy ? <Skeleton tiles={3} rows={2} /> : <>
           <div className="tiles3">
             <MoneyTile filled label={L(s, 'Your price', 'आपका दाम')} value={price} toned={false} />
@@ -105,7 +105,7 @@ export function FloorEngine() {
         {tab === 'buyer' && <Card title={L(s, 'How buyers see you', 'खरीदार आपको कैसे देखेंगे')}>
           <div className="feed">{feed.map((x, i) => (
             <div key={i} className={'feed-i' + (i === 2 ? ' me' : '')}>
-              {i === 2 ? <Thumb attrs={p.attrs} size={68} /> : <div className="ph" aria-hidden="true" />}
+              {i === 2 ? <Thumb attrs={p.attrs} size={68} photo={p.photos[0]} /> : <div className="ph" aria-hidden="true" />}
               <b>{inr(x)}</b><small>{i === 2 ? L(s, 'You', 'आप') : L(s, 'Similar', 'मिलता-जुलता')}</small>
               <span className="free">{L(s, 'Free delivery', 'फ़्री डिलीवरी')}</span>
             </div>))}</div>
@@ -114,6 +114,7 @@ export function FloorEngine() {
       </div>
       <StickyCTA>
         <Button full disabled={loss} onClick={list}>{p.live ? L(s, `Update price to ${inr(price)}`, `दाम ${inr(price)} करें`) : L(s, `List at ${inr(price)} →`, `${inr(price)} पर लिस्ट करें →`)}</Button>
+        {!loss && !p.live && !kycDone(s.kyc) && <p className="cta-note">{L(s, 'Next: verify your details (Aadhaar, PAN, bank) to start selling.', 'आगे: बेचने के लिए अपनी जानकारी (आधार, पैन, बैंक) वेरिफ़ाई करें।')}</p>}
         {loss && <p className="cta-warn">{L(s, "Mool Mitra won't let you list below your minimum price.", 'मूल मित्र आपको कम से कम दाम से नीचे लिस्ट नहीं करने देगा।')}</p>}
       </StickyCTA>
     </main>

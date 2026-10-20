@@ -1,6 +1,7 @@
 // App state: one object, saved on this phone only (simulated data, nothing leaves the device).
 import { useSyncExternalStore } from 'react';
 import type { Attrs } from './engine/catalog';
+import type { Kyc } from './engine/kyc';
 import type { Goal, Tier } from './engine/model';
 
 export type Lang = 'en' | 'hi';
@@ -16,14 +17,17 @@ export interface Product {
   price: number; goal: Goal;
   launch: boolean; launchLeft: number;
   live: boolean; liveWeek: number;   // global week when it went live
+  photos: string[];                   // resized JPEG data URLs, 1–3 required before pricing
   weeks: WeekRow[]; alerts: Alert[];
 }
 
 export interface AppState {
   lang: Lang;
   onboarded: boolean;
+  loggedIn: boolean;
   route: string;
-  seller: { name: string; shop: string; city: string; mobile: string };
+  seller: { name: string; shop: string; city: string; mobile: string; category: string };
+  kyc: Kyc;
   calc: { attrs: Attrs; cost: number };
   products: Product[];
   activeProductId: string;
@@ -36,12 +40,13 @@ const KEY = 'mool-mitra-v1';
 
 export const newProduct = (id = 'p' + Date.now().toString(36)): Product => ({
   id, attrs: {}, cost: 0, tier: 'standard', sizeChart: false, stock: 300, price: 0, goal: 'profit',
-  launch: true, launchLeft: 20, live: false, liveWeek: 0, weeks: [], alerts: [],
+  launch: true, launchLeft: 20, live: false, liveWeek: 0, photos: [], weeks: [], alerts: [],
 });
 
 export const initial = (): AppState => ({
-  lang: 'hi', onboarded: false, route: 'splash',
-  seller: { name: 'Ramesh Gupta', shop: 'Gupta Chikan Kendra', city: 'Lucknow', mobile: '' },
+  lang: 'hi', onboarded: false, loggedIn: false, route: 'splash',
+  seller: { name: 'Ramesh Gupta', shop: 'Gupta Chikan Kendra', city: 'Lucknow', mobile: '', category: 'Chikankari clothing' },
+  kyc: {},
   calc: { attrs: {}, cost: 0 },
   products: [newProduct('p1')], activeProductId: 'p1',
   week: 0, mode: 'ask', celebratedProfit: false,
@@ -52,7 +57,9 @@ function load(): AppState {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = { ...initial(), ...JSON.parse(raw) } as AppState;
-      if (Array.isArray(s.products) && s.products.length) return s;
+      s.seller = { ...initial().seller, ...s.seller };
+      s.products = (s.products ?? []).map(p => ({ ...newProduct(p.id), ...p }));
+      if (s.products.length) return s;
     }
   } catch { /* storage unavailable or old format */ }
   return initial();
@@ -65,9 +72,11 @@ export function update(fn: (draft: AppState) => void) {
   const next: AppState = structuredClone(state);
   fn(next);
   state = next;
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage blocked: session only */ }
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* storage blocked or full: session only */ }
   subs.forEach(f => f());
 }
+// log out keeps the shop on this phone; signing in again with OTP brings it back
+export function logout() { update(d => { d.loggedIn = false; }); }
 export function startOver() {
   try { localStorage.removeItem(KEY); } catch { /* ignore */ }
   update(d => { Object.assign(d, initial(), { lang: d.lang }); });
@@ -98,9 +107,9 @@ function channel() {
 export const toast = channel();
 export const banner = channel();
 
-// profile sheet visibility, opened from the avatar on any tab
-let profileOpen = false; const profileSubs = new Set<() => void>();
-export const profile = {
-  set(v: boolean) { profileOpen = v; profileSubs.forEach(f => f()); },
-  use() { return useSyncExternalStore(cb => { profileSubs.add(cb); return () => profileSubs.delete(cb); }, () => profileOpen); },
+// "Leave Mool Mitra?" prompt, shown when back is pressed with nowhere left to go
+let exitOpen = false; const exitSubs = new Set<() => void>();
+export const exitPrompt = {
+  set(v: boolean) { exitOpen = v; exitSubs.forEach(f => f()); },
+  use() { return useSyncExternalStore(cb => { exitSubs.add(cb); return () => exitSubs.delete(cb); }, () => exitOpen); },
 };

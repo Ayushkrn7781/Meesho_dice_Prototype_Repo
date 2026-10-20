@@ -2,7 +2,8 @@ import { estimate, isComplete, titleFor } from '../engine/catalog';
 import { TIERS, type Tier } from '../engine/model';
 import { back, navigate } from '../router';
 import { active, L, update, useStore } from '../store';
-import { AppBar, Button, Card, Segmented, Stepper, StickyCTA, Thumb } from '../ui/core';
+import { AppBar, Button, Card, Segmented, StickyCTA, Thumb } from '../ui/core';
+import { PhotoPicker } from '../ui/photos';
 import { isApparel, QuestionFlow, RupeeStepper } from './common';
 
 const setActive = (fn: (p: ReturnType<typeof active>) => void) => update(d => fn(active(d)));
@@ -12,21 +13,28 @@ export function Product() {
   const s = useStore();
   const p = active(s);
   const done = isComplete(p.attrs);
+  const photos = p.photos;
   return (
     <main className="screen">
-      <AppBar title={s.onboarded ? L(s, 'New product', 'नया सामान') : L(s, 'Your first product', 'आपका पहला सामान')} onBack={back} />
-      {!s.onboarded && <Stepper stage={2} />}
+      <AppBar title={s.onboarded ? L(s, 'New product', 'नया सामान') : L(s, 'Your first product', 'आपका पहला सामान')} />
       <div className="pad">
-        <QuestionFlow attrs={p.attrs} onChange={(na, complete) => {
+        <QuestionFlow attrs={p.attrs} photo={photos[0]} onChange={(na, complete) => {
           setActive(x => { x.attrs = na; x.cost = complete ? estimate(na).cost : 0; x.price = 0; });
-          if (complete) setTimeout(() => navigate('costs'), 250);
+          if (complete) setTimeout(() => document.getElementById('photos')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 120);
         }} />
-        {done && <Card highlight className="prod-sum">
-          <Thumb attrs={p.attrs} size={56} />
+        {done && !p.attrs.custom && <Card highlight className="prod-sum">
+          <Thumb attrs={p.attrs} size={56} photo={photos[0]} />
           <div><b>{titleFor(p.attrs)[s.lang]}</b><small>{L(s, 'Tap an answer above to change it.', 'बदलने के लिए ऊपर किसी जवाब पर दबाएं।')}</small></div>
         </Card>}
+        {done && <Card className={'photo-card' + (photos.length ? '' : ' need')} kicker={L(s, 'Required', 'ज़रूरी')} title={<span id="photos">{L(s, 'Product photos', 'सामान की फ़ोटो')}</span>}>
+          <p className="small">{L(s, 'Add at least 1 real photo (up to 3). Buyers trust real photos, and they cut returns.', 'कम से कम 1 असली फ़ोटो जोड़ें (3 तक)। खरीदार असली फ़ोटो पर भरोसा करते हैं और रिटर्न घटते हैं।')}</p>
+          <PhotoPicker photos={photos} onChange={ph => setActive(x => { x.photos = ph; })} />
+        </Card>}
       </div>
-      <StickyCTA><Button full disabled={!done} onClick={() => navigate('costs')}>{L(s, 'Next: your costs', 'आगे: आपका खर्च')}</Button></StickyCTA>
+      <StickyCTA>
+        <Button full disabled={!done || !photos.length} onClick={() => navigate('costs')}>{L(s, 'Next: your costs', 'आगे: आपका खर्च')}</Button>
+        {done && !photos.length && <p className="cta-warn">{L(s, 'Add a product photo to continue.', 'आगे बढ़ने के लिए सामान की फ़ोटो जोड़ें।')}</p>}
+      </StickyCTA>
     </main>
   );
 }
@@ -37,8 +45,7 @@ export function Costs() {
   const p = active(s);
   return (
     <main className="screen">
-      <AppBar title={L(s, 'Your costs', 'आपका खर्च')} sub={titleFor(p.attrs)[s.lang]} onBack={back} />
-      {!s.onboarded && <Stepper stage={2} />}
+      <AppBar title={L(s, 'Your costs', 'आपका खर्च')} sub={titleFor(p.attrs)[s.lang]} />
       <div className="pad">
         <Card title={L(s, 'Making cost per piece', 'एक पीस बनाने का खर्च')} kicker={L(s, 'Our estimate · change if different', 'हमारा अंदाज़ा · अलग हो तो बदलें')}>
           <RupeeStepper value={p.cost} label={L(s, 'Making cost per piece in rupees', 'एक पीस का खर्च, रुपये में')} onChange={n => setActive(x => { x.cost = n; x.price = 0; })} />

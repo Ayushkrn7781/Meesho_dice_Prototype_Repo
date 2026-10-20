@@ -3,21 +3,23 @@ import { titleFor } from '../engine/catalog';
 import { CONFIG, econ, FESTIVE } from '../engine/model';
 import { autoAccept, inputsOf } from '../engine/sim';
 import { navigate } from '../router';
-import { active, buzz, inr, L, liveProducts, newProduct, profile, toast, update, useStore, type AppState, type Product } from '../store';
+import { active, buzz, inr, L, liveProducts, newProduct, toast, update, useStore, type AppState, type Product } from '../store';
 import { ChartArt, ParcelArt } from '../ui/art';
 import { Bars } from '../ui/charts';
-import { Button, Card, Chip, Empty, LangPill, MoneyTile, Pill, ReceiptRow, Segmented, Thumb } from '../ui/core';
+import { BackButton, Button, Card, Chip, Empty, LangPill, MoneyTile, Pill, ReceiptRow, Segmented, Thumb } from '../ui/core';
+import { PhotoPicker } from '../ui/photos';
 import { alertText, answerAlert, isApparel, keepOf, ProductInfo, WeekStrip } from './common';
 
-// tab app bar: title, language pill and the profile avatar
+// tab app bar: back, title, language pill and the profile avatar
 function TabHeader({ title, sub }: { title: string; sub?: string }) {
   const s = useStore();
   const first = s.seller.name.trim().split(' ')[0] || 'M';
   return (
     <header className="tab-h">
+      <BackButton />
       <div><h1>{title}</h1>{sub && <small>{sub}</small>}</div>
       <LangPill />
-      <button className="avatar" onClick={() => profile.set(true)} aria-label={L(s, 'Open profile', 'प्रोफ़ाइल खोलें')}>{first.charAt(0).toUpperCase()}</button>
+      <button className="avatar" onClick={() => navigate('profile')} aria-label={L(s, 'Open profile', 'प्रोफ़ाइल खोलें')}>{first.charAt(0).toUpperCase()}</button>
     </header>
   );
 }
@@ -37,7 +39,7 @@ function ProductCard({ p }: { p: Product }) {
   const used = 20 - p.launchLeft;
   return (
     <button className={'pcard' + (p.id === s.activeProductId ? ' on' : '')} onClick={() => { update(d => { d.activeProductId = p.id; }); navigate('listing'); }}>
-      <Thumb attrs={p.attrs} size={60} />
+      <Thumb attrs={p.attrs} size={60} photo={p.photos[0]} />
       <span className="pc-b">
         <b>{titleFor(p.attrs)[s.lang]}</b>
         <span className="pc-n">{inr(p.price)} · {L(s, 'min', 'कम से कम')} {inr(e.breakeven)} · {L(s, 'keep', 'बचत')} <em className={e.c >= 0 ? 'gain' : 'loss'}>{inr(e.c)}</em></span>
@@ -189,7 +191,7 @@ export function Listing() {
       <div className="pad">
         <ProductSwitch />
         <div className="listing-hero">
-          <Thumb attrs={p.attrs} size={130} />
+          <Thumb attrs={p.attrs} size={130} photo={p.photos[0]} />
           <div>
             <b>{titleFor(p.attrs)[s.lang]}</b>
             <p className="lh-price">{launchOn ? <><s>{inr(p.price)}</s> <span>{inr(p.price - 50)}</span></> : <span>{inr(p.price)}</span>}</p>
@@ -204,6 +206,12 @@ export function Listing() {
             <span>{isApparel(p.attrs) ? L(s, 'Size chart + real photos', 'साइज़ चार्ट + असली फ़ोटो') : L(s, 'Real photos + exact size', 'असली फ़ोटो + सही नाप')}{!p.sizeChart && <small>{L(s, 'Tap to add · lowers your minimum', 'जोड़ने के लिए दबाएं · कम से कम दाम घटेगा')}</small>}</span>
             <b className={p.sizeChart ? 'gain' : 'loss'}>{p.sizeChart ? '✓ ' + L(s, 'Added', 'जुड़ा') : '✕ ' + L(s, 'Missing', 'नहीं है')}</b>
           </button>
+        </Card>
+        <Card title={L(s, 'Photos', 'फ़ोटो')}>
+          <PhotoPicker photos={p.photos} onChange={ph => {
+            if (!ph.length) { toast.show(L(s, 'Keep at least 1 photo', 'कम से कम 1 फ़ोटो रखें')); return; }
+            update(d => { active(d).photos = ph; });
+          }} />
         </Card>
         <ProductInfo attrs={p.attrs} />
         <Button full variant="ghost" onClick={() => navigate('floor')}><RefreshCw size={18} aria-hidden="true" />{L(s, 'Re-check price', 'दाम दोबारा जांचें')}</Button>

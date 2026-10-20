@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { isComplete, estimate } from '../engine/catalog';
 import { navigate } from '../router';
 import { active, L, update, useStore } from '../store';
-import { AppBar, Button, Card, Stepper, StickyCTA } from '../ui/core';
+import { AppBar, Button, Card, StickyCTA } from '../ui/core';
 import { Mic } from '../ui/mic';
 
 const DemoBanner = () => {
@@ -18,8 +18,7 @@ export function Phone() {
   const send = () => { update(d => { d.seller.mobile = num; }); navigate('otp'); };
   return (
     <main className="screen">
-      <AppBar title={L(s, 'Create your account', 'अपना खाता बनाएं')} onBack={() => navigate('calc')} />
-      <Stepper stage={1} />
+      <AppBar title={s.onboarded ? L(s, 'Log in', 'लॉग इन करें') : L(s, 'Create your account', 'अपना खाता बनाएं')} />
       <div className="pad">
         <DemoBanner />
         <h2 className="h2">{L(s, 'Your mobile number', 'आपका मोबाइल नंबर')}</h2>
@@ -46,7 +45,8 @@ export function Otp() {
   useEffect(() => { refs.current[0]?.focus(); }, []);
   useEffect(() => { if (left <= 0) return; const t = setTimeout(() => setLeft(l => l - 1), 1000); return () => clearTimeout(t); }, [left]);
   const full = d.every(x => x);
-  useEffect(() => { if (full) { const t = setTimeout(() => navigate('about'), 350); return () => clearTimeout(t); } }, [full]);
+  const verified = () => { update(x => { x.loggedIn = true; }); navigate(s.onboarded ? 'home' : 'about'); };
+  useEffect(() => { if (full) { const t = setTimeout(verified, 350); return () => clearTimeout(t); } }, [full]);
   const setAt = (i: number, v: string) => {
     const digits = v.replace(/\D/g, '');
     if (digits.length > 1) {   // pasted code
@@ -59,8 +59,7 @@ export function Otp() {
   const masked = s.seller.mobile ? `+91 ${s.seller.mobile.slice(0, 2)}XXX XX${s.seller.mobile.slice(-3)}` : '';
   return (
     <main className="screen">
-      <AppBar title={L(s, 'Verify number', 'नंबर पक्का करें')} onBack={() => navigate('phone')} />
-      <Stepper stage={1} />
+      <AppBar title={L(s, 'Verify number', 'नंबर पक्का करें')} />
       <div className="pad">
         <h2 className="h2">{L(s, 'Enter the 4-digit code', '4 अंकों का कोड डालें')}</h2>
         <p className="muted">{L(s, `Sent to ${masked}`, `${masked} पर भेजा गया`)}</p>
@@ -73,7 +72,7 @@ export function Otp() {
         <p className="muted center">{left > 0 ? L(s, `Resend code in ${left}s`, `${left} सेकंड में दोबारा भेजें`)
           : <button className="text-btn" onClick={() => setLeft(30)}>{L(s, 'Resend code', 'कोड दोबारा भेजें')}</button>}</p>
       </div>
-      <StickyCTA><Button full disabled={!full} onClick={() => navigate('about')}>{L(s, 'Verify', 'पक्का करें')}</Button></StickyCTA>
+      <StickyCTA><Button full disabled={!full} onClick={verified}>{L(s, 'Verify', 'पक्का करें')}</Button></StickyCTA>
     </main>
   );
 }
@@ -92,8 +91,7 @@ export function About() {
   const fields: ['name' | 'shop' | 'city', string, string][] = [['name', 'Your name', 'आपका नाम'], ['shop', 'Shop name', 'दुकान का नाम'], ['city', 'City', 'शहर']];
   return (
     <main className="screen">
-      <AppBar title={L(s, 'About you', 'आपके बारे में')} onBack={() => navigate('otp')} />
-      <Stepper stage={1} />
+      <AppBar title={L(s, 'About you', 'आपके बारे में')} />
       <div className="pad">
         <p className="ok-line">✓ {L(s, 'Number verified (demo)', 'नंबर पक्का हो गया (डेमो)')}</p>
         {fields.map(([k, en, hi]) => (
