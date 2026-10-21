@@ -1,6 +1,6 @@
 // Seller verification: everything Meesho needs before a seller can go live, one pop-up per item.
 import { useState, type ReactNode } from 'react';
-import { BadgeCheck, Building2, ChevronRight, CreditCard, FileText, Fingerprint, Landmark, Mail, MapPin, ShieldCheck } from 'lucide-react';
+import { BadgeCheck, Building2, ChevronRight, CreditCard, FileText, Fingerprint, Landmark, Mail, MapPin } from 'lucide-react';
 import {
   bankFor, digits, enrolmentId, fmtAadhaar, kycCount, kycDone, KYC_STEPS, maskAadhaar, maskAccount, maskPAN, sampleAadhaar, stateFor,
   validAadhaar, validAccount, validEmail, validGSTIN, validIFSC, validPAN, validPincode, type Kyc, type KycStep,
@@ -51,7 +51,6 @@ export function KycScreen() {
               : L(s, 'Meesho needs these before you can sell. Takes about 3 minutes.', 'बेचने से पहले मीशो को ये चाहिए। लगभग 3 मिनट लगेंगे।')}</p>
           </div>
         </div>
-        <p className="demo-banner"><ShieldCheck size={16} aria-hidden="true" /> {L(s, "Demo: don't enter your real Aadhaar, PAN or bank details. Nothing is sent anywhere; only masked numbers stay on this phone.", 'डेमो: अपना असली आधार, पैन या बैंक नंबर न डालें। कुछ भी कहीं नहीं भेजा जाता; इस फ़ोन पर सिर्फ़ छिपे हुए नंबर रहते हैं।')}</p>
         <ul className="kyc-list">
           {KYC_STEPS.map(k => {
             const Icon = ICON[k]; const ok = !!s.kyc[k];
@@ -112,7 +111,7 @@ function AadhaarForm({ onSave }: { onSave: SaveFn }) {
   const err = t && !ok ? (digits(num).length < 12 ? L(s, 'Aadhaar has 12 digits.', 'आधार में 12 अंक होते हैं।') : L(s, "This doesn't look like a valid Aadhaar number.", 'यह सही आधार नंबर नहीं लगता।')) : '';
   if (otpSent) return (<>
     <p className="small">{L(s, `Enter the OTP sent to the mobile linked with ${maskAadhaar(num)}.`, `${maskAadhaar(num)} से जुड़े मोबाइल पर आया OTP डालें।`)}</p>
-    <Field label={L(s, 'Aadhaar OTP', 'आधार OTP')} hint={L(s, 'Demo OTP: 1234', 'डेमो OTP: 1234')}>
+    <Field label={L(s, 'Aadhaar OTP', 'आधार OTP')} hint={L(s, 'OTP: 1234', 'OTP: 1234')}>
       <input inputMode="numeric" maxLength={6} value={otp} onChange={e => setOtp(digits(e.target.value))} autoComplete="one-time-code" />
     </Field>
     <div className="sheet-actions"><Button full disabled={otp.length < 4} onClick={() => onSave({ aadhaar: { masked: maskAadhaar(num), name: name.trim() } })}>{L(s, 'Verify Aadhaar', 'आधार वेरिफ़ाई करें')}</Button>
@@ -123,7 +122,7 @@ function AadhaarForm({ onSave }: { onSave: SaveFn }) {
     <Field label={L(s, 'Aadhaar number', 'आधार नंबर')} error={err}>
       <input inputMode="numeric" value={fmtAadhaar(num)} onChange={e => setNum(digits(e.target.value).slice(0, 12))} onBlur={touch} placeholder="XXXX XXXX XXXX" autoComplete="off" />
     </Field>
-    <button className="text-btn" onClick={() => setNum(sampleAadhaar())}>{L(s, 'Use a sample number (demo)', 'नमूना नंबर डालें (डेमो)')}</button>
+    <button className="text-btn" onClick={() => setNum(sampleAadhaar())}>{L(s, 'Use a sample number', 'नमूना नंबर डालें')}</button>
     <label className="check"><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} />{L(s, 'I agree to verify my identity with an Aadhaar OTP.', 'मैं आधार OTP से अपनी पहचान वेरिफ़ाई करने के लिए सहमत हूं।')}</label>
     <div className="sheet-actions"><Button full disabled={!ok || !consent || name.trim().length < 2} onClick={() => setOtpSent(true)}>{L(s, 'Send OTP', 'OTP भेजें')}</Button></div>
   </>);
@@ -139,7 +138,7 @@ function PanForm({ onSave }: { onSave: SaveFn }) {
     <Field label={L(s, 'PAN number', 'पैन नंबर')} error={t && !ok ? L(s, 'PAN looks like ABCPE1234F: 5 letters, 4 digits, 1 letter.', 'पैन ऐसा होता है: ABCPE1234F — 5 अक्षर, 4 अंक, 1 अक्षर।') : ''}>
       <input value={pan} maxLength={10} onChange={e => setPan(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} onBlur={touch} placeholder="ABCPE1234F" autoCapitalize="characters" autoComplete="off" className="mono" />
     </Field>
-    <button className="text-btn" onClick={() => setPan('ABCPE1234F')}>{L(s, 'Use a sample PAN (demo)', 'नमूना पैन डालें (डेमो)')}</button>
+    <button className="text-btn" onClick={() => setPan('ABCPE1234F')}>{L(s, 'Use a sample PAN', 'नमूना पैन डालें')}</button>
     <Field label={L(s, 'Name as on PAN', 'पैन पर लिखा नाम')}><input value={name} onChange={e => setName(e.target.value)} /></Field>
     <div className="sheet-actions"><Button full disabled={!ok || name.trim().length < 2} onClick={() => onSave({ pan: { masked: maskPAN(pan), name: name.trim() } })}>{L(s, 'Verify PAN', 'पैन वेरिफ़ाई करें')}</Button></div>
   </>);
@@ -190,9 +189,9 @@ function BankForm({ onSave }: { onSave: SaveFn }) {
     <Field label="IFSC" error={ifsc.length >= 11 && !validIFSC(ifsc) ? L(s, 'IFSC looks like SBIN0001234.', 'IFSC ऐसा होता है: SBIN0001234।') : ''} hint={bank ? <><Building2 size={14} aria-hidden="true" /> {bank}</> : undefined}>
       <input value={ifsc} maxLength={11} onChange={e => setIfsc(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} placeholder="SBIN0001234" className="mono" autoComplete="off" />
     </Field>
-    <button className="text-btn" onClick={() => { setAcc('123456789012'); setAcc2('123456789012'); setIfsc('SBIN0001234'); }}>{L(s, 'Use sample bank details (demo)', 'नमूना बैंक जानकारी डालें (डेमो)')}</button>
-    <div className="sheet-actions"><Button full disabled={!ok || checking} onClick={verify}>{checking ? L(s, 'Sending ₹1 to check…', 'जांच के लिए ₹1 भेज रहे हैं…') : L(s, 'Verify with ₹1 (demo)', '₹1 से वेरिफ़ाई करें (डेमो)')}</Button></div>
-    <p className="hint">{L(s, 'We send ₹1 to this account and match the name. No real money moves in this demo.', 'हम इस खाते में ₹1 भेजकर नाम मिलाते हैं। इस डेमो में असली पैसा नहीं जाता।')}</p>
+    <button className="text-btn" onClick={() => { setAcc('123456789012'); setAcc2('123456789012'); setIfsc('SBIN0001234'); }}>{L(s, 'Use sample bank details', 'नमूना बैंक जानकारी डालें')}</button>
+    <div className="sheet-actions"><Button full disabled={!ok || checking} onClick={verify}>{checking ? L(s, 'Sending ₹1 to check…', 'जांच के लिए ₹1 भेज रहे हैं…') : L(s, 'Verify with ₹1', '₹1 से वेरिफ़ाई करें')}</Button></div>
+    <p className="hint">{L(s, 'We send ₹1 to this account and match the name.', 'हम इस खाते में ₹1 भेजकर नाम मिलाते हैं।')}</p>
   </>);
 }
 

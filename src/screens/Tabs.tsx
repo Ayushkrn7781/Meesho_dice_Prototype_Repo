@@ -98,8 +98,8 @@ export function Hisaab() {
   const realRet = Math.max(0, Math.round(100 * (w.returned / w.orders - e.r)));
   const assumed = Math.round(e.q * 100);
   const msg = L(s,
-    `${s.seller.shop} · Week ${w.week} on Meesho\n${w.orders} orders, ${w.kept} kept by buyers\nMoney received ${inr(w.received)}\nProfit ${inr(w.profit)}\n— via Mool Mitra (demo)`,
-    `${s.seller.shop} · मीशो पर ${w.week}वां हफ़्ता\n${w.orders} ऑर्डर, ${w.kept} खरीदारों ने रखे\nमिला पैसा ${inr(w.received)}\nमुनाफ़ा ${inr(w.profit)}\n— मूल मित्र से (डेमो)`);
+    `${s.seller.shop} · Week ${w.week} on Meesho\n${w.orders} orders, ${w.kept} kept by buyers\nMoney received ${inr(w.received)}\nProfit ${inr(w.profit)}\n— via Mool Mitra`,
+    `${s.seller.shop} · मीशो पर ${w.week}वां हफ़्ता\n${w.orders} ऑर्डर, ${w.kept} खरीदारों ने रखे\nमिला पैसा ${inr(w.received)}\nमुनाफ़ा ${inr(w.profit)}\n— मूल मित्र से`);
   return (
     <main className="screen tabscreen">
       <TabHeader title={L(s, 'Hisaab', 'हिसाब')} sub={titleFor(p.attrs)[s.lang]} />

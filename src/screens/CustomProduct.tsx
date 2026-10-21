@@ -66,7 +66,7 @@ export function CustomProductSheet({ initial, onClose, onSave }: { initial?: Att
         <RupeeStepper value={f.cost} onChange={n => set('cost', n)} label={L(s, 'Cost per piece in rupees', 'एक पीस का खर्च, रुपये में')} />
         <p className="field-l">{L(s, 'Similar items usually sell for', 'मिलता-जुलता सामान आम तौर पर बिकता है')}</p>
         <RupeeStepper value={f.median} step={10} onChange={n => set('median', Math.max(50, n))} label={L(s, 'Typical price of similar items in rupees', 'मिलते-जुलते सामान का आम दाम, रुपये में')} />
-        <p className="hint">{L(s, `Our estimate for ${ind.en.toLowerCase()} is ${inr(ind.median)} (simulated). Change it if you know better.`, `${ind.hi} के लिए हमारा अंदाज़ा ${inr(ind.median)} है (सिम्युलेटेड)। आपको बेहतर पता हो तो बदलें।`)}</p>
+        <p className="hint">{L(s, `Our estimate for ${ind.en.toLowerCase()} is ${inr(ind.median)} Change it if you know better.`, `${ind.hi} के लिए हमारा अंदाज़ा ${inr(ind.median)} है। आपको बेहतर पता हो तो बदलें।`)}</p>
         {!ready && <p className="cta-warn">{L(s, 'Add a name and your cost to continue.', 'आगे बढ़ने के लिए नाम और खर्च डालें।')}</p>}
         <div className="sheet-actions two-btn">
           <Button full disabled={!ready} onClick={() => setStep('preview')}><Sparkles size={20} aria-hidden="true" />{L(s, 'Format neatly', 'सही ढंग से सजाएं')}</Button>

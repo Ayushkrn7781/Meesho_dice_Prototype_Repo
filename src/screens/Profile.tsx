@@ -84,17 +84,14 @@ export function Profile() {
               'हर भेजे गए ऑर्डर पर हम देखते हैं कि असल में कितना मिलता है: कुछ पार्सल डिलीवर नहीं होते (लगभग 20%) और कुछ वापस आते हैं (लगभग 10%)। मिले पैसे में से बनाने का खर्च, आने-जाने की शिपिंग, पैकिंग, विज्ञापन और लगभग 3% फ़ीस घटाते हैं। जो बचता है, वही आपकी बचत है।')}</p>
             <p>{L(s, 'Your minimum price is where that is exactly ₹0. Your target floor keeps ₹40 more per order. We never let you list below the minimum.',
               'कम से कम दाम वह है जहां बचत ठीक ₹0 हो। सही न्यूनतम दाम पर हर ऑर्डर पर ₹40 और बचते हैं। हम आपको कम से कम दाम से नीचे लिस्ट नहीं करने देते।')}</p>
-            <p className="demo-banner">{L(s, 'All orders, profits and alerts in this app are simulated demo data. Return and delivery rates are model assumptions based on public data. Survey figures come from a simulated survey (n=150).',
-              'इस ऐप के सभी ऑर्डर, मुनाफ़ा और अलर्ट डेमो के लिए बनाए गए (सिम्युलेटेड) आंकड़े हैं। रिटर्न और डिलीवरी दरें सार्वजनिक आंकड़ों पर आधारित अनुमान हैं। सर्वे के आंकड़े सिम्युलेटेड सर्वे (n=150) से हैं।')}</p>
             <p className="field-l">{L(s, 'Sources', 'स्रोत')}</p>
             <ul className="sources">{SOURCES.map(([t, u]) => <li key={u}><a href={u} target="_blank" rel="noreferrer">{t}</a></li>)}
               <li>{L(s, 'Meesho FY26 seller figures: Deccan Herald; new-to-e-commerce share: Tigerfeathers; returns/RTO: Angadi Labs.', 'मीशो FY26 सेलर आंकड़े: डेक्कन हेराल्ड; नए ऑनलाइन सेलर: टाइगरफ़ेदर्स; रिटर्न/RTO: अंगडी लैब्स।')}</li></ul>
-            <button className="text-btn" onClick={() => setConfirm('clear')}>{L(s, 'Clear demo data on this phone', 'इस फ़ोन से डेमो डेटा मिटाएं')}</button>
+            <button className="text-btn" onClick={() => setConfirm('clear')}>{L(s, 'Clear all data on this phone', 'इस फ़ोन से सारा डेटा मिटाएं')}</button>
           </div>}
         </section>
 
         <Button full variant="ghost" className="logout" onClick={() => setConfirm('logout')}><LogOut size={20} aria-hidden="true" />{L(s, 'Log out', 'लॉग आउट')}</Button>
-        <p className="hint center">Mool Mitra · {L(s, 'demo version', 'डेमो वर्ज़न')}</p>
       </div>
 
       {edit && <EditProfile onClose={() => setEdit(false)} />}
@@ -105,8 +102,8 @@ export function Profile() {
           <Button full variant="ghost" onClick={() => setConfirm(null)}>{L(s, 'Cancel', 'रद्द करें')}</Button>
         </div>
       </BottomSheet>
-      <BottomSheet open={confirm === 'clear'} onClose={() => setConfirm(null)} title={L(s, 'Clear demo data?', 'डेमो डेटा मिटाएं?')}>
-        <p className="small">{L(s, 'This deletes the shop, products, weeks and KYC saved on this phone and starts the demo again.', 'इससे इस फ़ोन पर सेव दुकान, सामान, हफ़्ते और KYC मिट जाएंगे और डेमो फिर से शुरू होगा।')}</p>
+      <BottomSheet open={confirm === 'clear'} onClose={() => setConfirm(null)} title={L(s, 'Clear all data?', 'सारा डेटा मिटाएं?')}>
+        <p className="small">{L(s, 'This deletes the shop, products, weeks and KYC saved on this phone and starts again from the beginning.', 'इससे इस फ़ोन पर सेव दुकान, सामान, हफ़्ते और KYC मिट जाएंगे और ऐप शुरू से खुलेगा।')}</p>
         <div className="sheet-actions">
           <Button full onClick={() => { setConfirm(null); startOver(); navigate('splash', { replace: true }); }}>{L(s, 'Yes, clear', 'हां, मिटाएं')}</Button>
           <Button full variant="ghost" onClick={() => setConfirm(null)}>{L(s, 'Cancel', 'रद्द करें')}</Button>

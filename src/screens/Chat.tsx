@@ -19,7 +19,7 @@ export function answer(s: AppState, q: string): string {
   const hi = s.lang === 'hi';
   const needProduct = hi ? 'पहले अपना सामान और खर्च डालिए, फिर मैं आपके हिसाब से बताऊंगा।' : 'Add your product and cost first, then I can answer with your own numbers.';
   if (/person|insaan|इंसान|human|baat kar|बात कर|call me/.test(t))
-    return hi ? 'ठीक है। आपके इलाके का मीशो साथी 24 घंटे में WhatsApp पर बात करेगा (डेमो)।' : "Sure. A Meesho partner from your area will message you on WhatsApp within 24 hours (demo).";
+    return hi ? 'ठीक है। आपके इलाके का मीशो साथी 24 घंटे में WhatsApp पर बात करेगा।' : "Sure. A Meesho partner from your area will message you on WhatsApp within 24 hours.";
   if (/rival|competitor|sasta|सस्ता|price cut|cut price|ghataya|घटाया|dusre seller|दूसरे सेलर/.test(t))
     return e ? (hi ? `दूसरे सेलर ने दाम घटाया तो तुरंत मत घटाइए। ${inr(e.breakeven)} से नीचे हर ऑर्डर पर घाटा है। 48 घंटे रुकिए — ज़्यादातर कटौती वापस हो जाती है।` : `If a rival cuts price, don't copy at once. Below ${inr(e.breakeven)} you lose on every order. Wait 48 hours: most cuts reverse.`) : needProduct;
   if (/min|kam se kam|न्यूनतम|कम से कम|loss|ghata|घाटा|nuksan|नुकसान|breakeven/.test(t))

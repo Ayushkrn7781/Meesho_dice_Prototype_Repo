@@ -157,7 +157,7 @@ export function answerAlert(p: Product, a: Alert, accept: boolean) {
   if (accept) toast.show(a.kind === 'returns' ? (isApparel(p.attrs) ? L(s0, 'Size chart added', 'साइज़ चार्ट जुड़ गया') : L(s0, 'Photos & size added', 'फ़ोटो और नाप जुड़ गए')) : a.kind === 'rival' ? L(s0, 'Holding your price', 'आपका दाम वही रहेगा') : L(s0, 'Price updated', 'दाम बदल गया'));
 }
 
-// ---- demo fast-forward ----
+// ---- week fast-forward ----
 // multi-week jumps pause on any week that brings a new alert, so ask-me-first advice is never skipped
 export function advance(n: number, onFirstProfit: () => void) {
   const s0 = getState();
@@ -183,7 +183,7 @@ export function WeekStrip({ onFirstProfit }: { onFirstProfit: () => void }) {
   return (
     <div className="weekstrip">
       <div><b>{L(s, `Week ${s.week} on Meesho`, `मीशो पर ${s.week}वां हफ़्ता`)}</b>
-        {isFestive(s.week + 1) ? <Pill tone="saffron">🪔 {L(s, 'Diwali next', 'आगे दिवाली')}</Pill> : <Pill>{L(s, 'Demo', 'डेमो')}</Pill>}</div>
+        {isFestive(s.week + 1) ? <Pill tone="saffron">🪔 {L(s, 'Diwali next', 'आगे दिवाली')}</Pill> : null}</div>
       <div className="ws-b">
         <button className="ws-next" onClick={() => { buzz(); advance(1, onFirstProfit); }}>{L(s, 'Next week ▸', 'अगला हफ़्ता ▸')}</button>
         <button className="ws-4" onClick={() => { buzz(); advance(4, onFirstProfit); }} aria-label={L(s, 'Skip up to 4 weeks', '4 हफ़्ते तक आगे')}>+4</button>

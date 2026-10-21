@@ -5,10 +5,6 @@ import { active, L, update, useStore } from '../store';
 import { AppBar, Button, Card, StickyCTA } from '../ui/core';
 import { Mic } from '../ui/mic';
 
-const DemoBanner = () => {
-  const s = useStore();
-  return <p className="demo-banner">{L(s, 'Demo app: use any number. Nothing is sent anywhere.', 'डेमो ऐप: कोई भी नंबर डालें। कुछ भी कहीं नहीं भेजा जाता।')}</p>;
-};
 
 // 8.5 step 1: mobile number
 export function Phone() {
@@ -20,7 +16,6 @@ export function Phone() {
     <main className="screen">
       <AppBar title={s.onboarded ? L(s, 'Log in', 'लॉग इन करें') : L(s, 'Create your account', 'अपना खाता बनाएं')} />
       <div className="pad">
-        <DemoBanner />
         <h2 className="h2">{L(s, 'Your mobile number', 'आपका मोबाइल नंबर')}</h2>
         <p className="muted">{L(s, "We'll send a 4-digit code.", 'हम 4 अंकों का कोड भेजेंगे।')}</p>
         <label className="phone-in">
@@ -68,7 +63,7 @@ export function Otp() {
             aria-label={L(s, `Digit ${i + 1}`, `अंक ${i + 1}`)} onChange={e => setAt(i, e.target.value)}
             onKeyDown={e => { if (e.key === 'Backspace' && !v && i > 0) refs.current[i - 1]?.focus(); }} />)}
         </div>
-        <p className="otp-hint">{L(s, 'Demo OTP: 1234 (any 4 digits work)', 'डेमो OTP: 1234 (कोई भी 4 अंक चलेंगे)')}</p>
+        <p className="otp-hint">{L(s, 'OTP: 1234 (any 4 digits work)', 'OTP: 1234 (कोई भी 4 अंक चलेंगे)')}</p>
         <p className="muted center">{left > 0 ? L(s, `Resend code in ${left}s`, `${left} सेकंड में दोबारा भेजें`)
           : <button className="text-btn" onClick={() => setLeft(30)}>{L(s, 'Resend code', 'कोड दोबारा भेजें')}</button>}</p>
       </div>
@@ -93,7 +88,7 @@ export function About() {
     <main className="screen">
       <AppBar title={L(s, 'About you', 'आपके बारे में')} />
       <div className="pad">
-        <p className="ok-line">✓ {L(s, 'Number verified (demo)', 'नंबर पक्का हो गया (डेमो)')}</p>
+        <p className="ok-line">✓ {L(s, 'Number verified', 'नंबर पक्का हो गया')}</p>
         {fields.map(([k, en, hi]) => (
           <label key={k} className="field">{L(s, en, hi)}
             <span className="field-row"><input value={s.seller[k]} onChange={e => set(k, e.target.value)} autoComplete={k === 'name' ? 'name' : k === 'city' ? 'address-level2' : 'organization'} />
